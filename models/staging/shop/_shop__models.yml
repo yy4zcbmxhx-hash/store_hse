@@ -5,13 +5,13 @@ version: 2
 
 models:
   - name: stg_shop__orders
-    description: "Заказы из источника: одна строка — один заказ."
+    description: "Заказы из источника"
     columns:
       - name: order_id
-        description: "Номер заказа."
+        description: "Номер заказа"
         data_tests: [unique, not_null]
       - name: customer_id
-        description: "Клиент, оформивший заказ."
+        description: "Номер клиента"
         data_tests:
           - not_null
           - relationships:
@@ -19,31 +19,31 @@ models:
                 to: ref('stg_shop__customers')
                 field: customer_id
       - name: order_status
-        description: "Статус заказа. test — тестовые заказы: в источнике они есть, в аналитику не попадают."
+        description: "Статус заказа"
         data_tests:
           - accepted_values:
               arguments:
                 values: ['paid', 'pending', 'returned', 'cancelled', 'test']
       - name: order_amount
-        description: "Сумма заказа в рублях после скидок."
+        description: "Сумма заказа после скидок"
 
   - name: stg_shop__customers
-    description: "Клиенты из источника: одна строка — один клиент."
+    description: "Клиенты из источника"
     columns:
       - name: customer_id
-        description: "Номер клиента."
+        description: "Номер клиента"
         data_tests: [unique, not_null]
       - name: registration_date
-        description: "Дата регистрации без времени."
+        description: "Дата регистрации"
 
   - name: stg_shop__order_items
-    description: "Позиции заказов: одна строка — один товар в заказе."
+    description: "Позиции заказов из источника"
     columns:
       - name: order_item_id
-        description: "Ключ позиции вида 101-1: номер заказа и номер товара через дефис."
+        description: "Ключ позиции: заказ и товар"
         data_tests: [unique, not_null]
       - name: order_id
-        description: "Заказ, в который входит позиция."
+        description: "Номер заказа"
         data_tests:
           - not_null
           - relationships:
@@ -51,18 +51,18 @@ models:
                 to: ref('stg_shop__orders')
                 field: order_id
       - name: gross_amount
-        description: "Сумма позиции до скидки: количество × цена."
+        description: "Сумма позиции до скидки"
       - name: line_amount
-        description: "Сумма позиции после скидки."
+        description: "Сумма позиции после скидки"
 
   - name: stg_shop__payments
-    description: "Платёжные операции: одна строка — одна операция. У заказа их может быть несколько."
+    description: "Платёжные операции из источника"
     columns:
       - name: payment_id
-        description: "Номер операции."
+        description: "Номер операции"
         data_tests: [unique, not_null]
       - name: order_id
-        description: "Заказ, к которому относится операция."
+        description: "Номер заказа"
         data_tests:
           - not_null
           - relationships:
@@ -70,10 +70,47 @@ models:
                 to: ref('stg_shop__orders')
                 field: order_id
       - name: payment_status
-        description: "Статус операции."
+        description: "Статус операции"
         data_tests:
           - accepted_values:
               arguments:
                 values: ['success', 'failed', 'pending']
       - name: is_refund
-        description: "Возврат: успешная операция с отрицательной суммой."
+        description: "Успешная операция с отрицательной суммой"
+
+  - name: stg_shop__products
+    description: "Товары из источника"
+    columns:
+      - name: product_id
+        description: "Номер товара"
+        data_tests: [unique, not_null]
+      - name: product_name
+        description: "Название товара"
+        data_tests: [not_null]
+      - name: brand
+        description: "Бренд"
+      - name: category_name
+        description: "Название категории"
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_shop__product_categories')
+                field: category_name
+
+  - name: stg_shop__product_categories
+    description: "Категории из источника"
+    columns:
+      - name: category_id
+        description: "Номер категории"
+        data_tests: [unique, not_null]
+      - name: parent_category_id
+        description: "Номер родителя, NULL у корня"
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_shop__product_categories')
+                field: category_id
+      - name: category_name
+        description: "Название категории"
+        data_tests: [unique, not_null]
