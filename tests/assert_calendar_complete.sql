@@ -10,7 +10,7 @@ orders as (
         min(order_date) as first_day,
         max(order_date) as last_day,
         coalesce(max(order_date) - min(order_date) + 1, 0) as expected_days
-    from {{ ref('fct_orders') }}
+    from {{ ref('stg_shop__orders') }}
 )
 select calendar.*, orders.expected_days
 from calendar

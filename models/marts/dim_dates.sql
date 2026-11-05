@@ -1,7 +1,7 @@
 {{ config(distributed_replicated=true) }}
 
-{% set start_date = "(select min(order_date)::timestamp from " ~ ref('fct_orders') ~ ")" %}
-{% set end_date = "(select max(order_date)::timestamp + interval '1 day' from " ~ ref('fct_orders') ~ ")" %}
+{% set start_date = "(select min(order_date)::timestamp from " ~ ref('stg_shop__orders') ~ ")" %}
+{% set end_date = "(select max(order_date)::timestamp + interval '1 day' from " ~ ref('stg_shop__orders') ~ ")" %}
 
 with date_spine as (
     {{ dbt_utils.date_spine(
